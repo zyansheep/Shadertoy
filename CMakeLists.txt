@@ -10,8 +10,8 @@ include_directories(ZyEngine/libs/glm)
 add_subdirectory(ZyEngine)
 
 #Find Sources and Headers in src folder
-file(GLOB_RECURSE SOURCES *.cpp)
-file(GLOB_RECURSE HEADERS *.h)
+file(GLOB_RECURSE SOURCES src/*.cpp)
+file(GLOB_RECURSE HEADERS src/*.h)
 
 #Test executable
 add_executable(Shadertoy ${SOURCES} ${HEADERS})
