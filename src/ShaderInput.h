@@ -9,19 +9,19 @@
 #include "Rendering/Texture.h"
 
 const std::string FragmentShaderHeader = std::string(ZY_SHADER_VERSION) + R"(
-  precision mediump float;
-  precision mediump int;
-  uniform vec3       iResolution;
-  uniform float      iTime;
-  uniform float      iGlobalTime;
-  uniform vec4       iMouse;
-  uniform vec4       iDate;
-  uniform float      iSampleRate;
-  uniform int        iFrame;
-  uniform float      iTimeDelta;
-  uniform float      iFrameRate;
-  uniform vec3       iChannelResolution[4];
-  uniform float      iChannelTime[4];
+precision mediump float;
+precision mediump int;
+uniform vec3       iResolution;
+uniform float      iTime;
+uniform float      iGlobalTime;
+uniform vec4       iMouse;
+uniform vec4       iDate;
+uniform float      iSampleRate;
+uniform int        iFrame;
+uniform float      iTimeDelta;
+uniform float      iFrameRate;
+uniform vec3       iChannelResolution[4];
+uniform float      iChannelTime[4];
 )";
 
 class ShaderToy;
@@ -48,5 +48,5 @@ private:
     std::time_t time;
     std::tm* now;
 
-    unsigned int uniformLocations[21]; //21 uniform locations
+    unsigned int uniformLocations[50]; //23 uniform locations
 };

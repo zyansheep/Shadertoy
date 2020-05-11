@@ -6,6 +6,7 @@ ShaderInput::ShaderInput(){
     now = std::localtime(&time);
 }
 void ShaderInput::GetUniformLocations(Shader& shader){
+    shader.Bind();
     uniformLocations[0] = shader.GetUniformLocation("iResolution");
     uniformLocations[1] = shader.GetUniformLocation("iTime");
     uniformLocations[2] = shader.GetUniformLocation("iGlobalTime");

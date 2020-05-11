@@ -3,14 +3,17 @@
 #include "Model/Model.h"
 Model plane = ModelGeneration::Square(1,1);
 
-ShaderToy::ShaderToy(std::string script, std::vector<std::shared_ptr<Texture>>& textures) {
+ShaderToy::ShaderToy(std::string script, std::vector<std::shared_ptr<Texture>>& textures)
+: ShaderToy(){
   SetTextures(textures);
   SetScript(script);
-
+}
+ShaderToy::ShaderToy(){
   m_VertexArray = plane.MakeVertexArray();
 }
-ShaderToy::ShaderToy(){}
-ShaderToy::~ShaderToy() { delete m_VertexArray; }
+ShaderToy::~ShaderToy() {
+  m_VertexArray->ClearUnalloc();
+}
 
 void ShaderToy::SetTextures(std::vector<std::shared_ptr<Texture>>& texture) {
   m_Textures = texture;
@@ -24,23 +27,24 @@ void ShaderToy::SetScript(std::string script){
     stream << "uniform sampler2D iChannel" << i << ";\n";
   }
   stream << script << FragmentShaderFooter; //From Constants.h
-  
+  //std::cout << stream.str() << std::endl;
   m_Shader = Shader(
     VertexShader, //From Constants.h
     stream.str());
+  m_Input.GetUniformLocations(m_Shader); //Save all the uniform locations
 }
 void ShaderToy::Update(Window& window) {
-  if(!m_VertexArray){return;}
-
+  if(!m_VertexArray){ return; }
   m_Input.Update(window, *this);
 }
 void ShaderToy::Draw(){
-  if(!m_VertexArray){return;}
+  if(!m_VertexArray){ return; }
+  if(!m_VertexArray->Loaded){ return; }
 
+  m_Shader.Bind();
   for(auto& texture : m_Textures){
     texture->Bind();
   }
-  m_Shader.Bind();
   m_Input.Send(m_Shader); // Update Uniforms
   m_VertexArray->Draw();
 }

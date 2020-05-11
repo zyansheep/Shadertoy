@@ -25,8 +25,8 @@ void setup(){
   
   toy.SetScript(readFileSync(shader_path));
 
-  glEnable(GL_DEPTH_TEST);
-  glDepthFunc(GL_LESS);
+  //glEnable(GL_DEPTH_TEST);
+  //glDepthFunc(GL_LESS);
   
   gui.Init();
 }
