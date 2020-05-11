@@ -30,11 +30,10 @@ void ShaderInput::GetUniformLocations(Shader& shader){
     uniformLocations.reserve(25); //Reserve vector size
     std::string s = FragmentShaderHeader;
     while (std::regex_search (s,m,e)) {
-        std::string last;
-        for (auto x:m) { std::cout << x << " "; last = x; } 
-        std::cout << std::endl;
         s = m.suffix().str();
-        uniformLocations.push_back(shader.GetUniformLocation(last.c_str()));
+        std::string last;
+        for(auto x:m){last = x;}
+        uniformLocations.push_back(shader.GetUniformLocation( last.c_str() ));
     }
 }
 void ShaderInput::Update(Window& window, ShaderToy& toy){

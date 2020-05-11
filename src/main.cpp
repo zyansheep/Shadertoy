@@ -51,7 +51,7 @@ void draw(){
   gui.Begin("Hello There~");
     ImGui::Button("This is a button");
     ImGuiColorEditFlags misc_flags = (0) | (ImGuiColorEditFlags_NoDragDrop) | (ImGuiColorEditFlags_AlphaPreviewHalf) | (ImGuiColorEditFlags_NoOptions);
-    ImGui::Text("FrameTime: %f seconds", window.GetFrameTime());
+    ImGui::Text("FPS: %d", window.GetFrameRate());
     ImGui::Text("Mouse Position: (%d, %d)", window.MouseX, window.MouseY);
     ImGui::Text("Current Time: %f", window.RunTime);
   gui.End();
