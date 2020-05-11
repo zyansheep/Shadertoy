@@ -15,7 +15,7 @@ Window window = Window(1280,720, "ZyEngine - Shadertoy");
 Gui gui = Gui(window);
 ShaderToy toy;
 
-std::string shader_path = "shaders/BallOfFire.shader";
+std::string shader_path = "shaders/marching.shader";
 std::vector<std::string> texture_paths;
 Shader shader;
 

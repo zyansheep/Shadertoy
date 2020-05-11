@@ -4,35 +4,38 @@
 ShaderInput::ShaderInput(){
     time = std::time(0);
     now = std::localtime(&time);
+    
 }
+
+#include <regex>
 void ShaderInput::GetUniformLocations(Shader& shader){
-    shader.Bind();
-    uniformLocations[0] = shader.GetUniformLocation("iResolution");
-    uniformLocations[1] = shader.GetUniformLocation("iTime");
-    uniformLocations[2] = shader.GetUniformLocation("iGlobalTime");
-    uniformLocations[3] = shader.GetUniformLocation("iMouse");
-    uniformLocations[4] = shader.GetUniformLocation("iDate");
-    uniformLocations[5] = shader.GetUniformLocation("iSampleRate");
-    uniformLocations[6] = shader.GetUniformLocation("iChannelResolution");
-    uniformLocations[7] = shader.GetUniformLocation("iChannelTime");
-    uniformLocations[8] = shader.GetUniformLocation("iTimeDelta");
-    uniformLocations[9] = shader.GetUniformLocation("iFrame");
-    uniformLocations[10] = shader.GetUniformLocation("iFrameRate");
+    uniformLocations.push_back(shader.GetUniformLocation("iChannel0"));
+    uniformLocations.push_back(shader.GetUniformLocation("iChannel1"));
+    uniformLocations.push_back(shader.GetUniformLocation("iChannel2"));
+    uniformLocations.push_back(shader.GetUniformLocation("iChannel3"));
 
-    uniformLocations[11] = shader.GetUniformLocation("iChannel0");
-    uniformLocations[12] = shader.GetUniformLocation("iChannel1");
-    uniformLocations[13] = shader.GetUniformLocation("iChannel2");
-    uniformLocations[14] = shader.GetUniformLocation("iChannel3");
+    uniformLocations.push_back(shader.GetUniformLocation("iChannel[0].resolution"));
+    uniformLocations.push_back(shader.GetUniformLocation("iChannel[1].resolution"));
+    uniformLocations.push_back(shader.GetUniformLocation("iChannel[2].resolution"));
+    uniformLocations.push_back(shader.GetUniformLocation("iChannel[3].resolution"));
 
-    uniformLocations[15] = shader.GetUniformLocation("iChannel[0].resolution");
-    uniformLocations[16] = shader.GetUniformLocation("iChannel[1].resolution");
-    uniformLocations[17] = shader.GetUniformLocation("iChannel[2].resolution");
-    uniformLocations[18] = shader.GetUniformLocation("iChannel[3].resolution");
+    uniformLocations.push_back(shader.GetUniformLocation("iChannel[0].time"));
+    uniformLocations.push_back(shader.GetUniformLocation("iChannel[1].time"));
+    uniformLocations.push_back(shader.GetUniformLocation("iChannel[2].time"));
+    uniformLocations.push_back(shader.GetUniformLocation("iChannel[3].time"));
 
-    uniformLocations[19] = shader.GetUniformLocation("iChannel[0].time");
-    uniformLocations[20] = shader.GetUniformLocation("iChannel[1].time");
-    uniformLocations[21] = shader.GetUniformLocation("iChannel[2].time");
-    uniformLocations[22] = shader.GetUniformLocation("iChannel[3].time");
+    std::smatch m;
+    std::regex e ("uniform\\s+(\\w+)\\s+(\\w+);"); //Search through Fragment Header using regex
+
+    uniformLocations.reserve(25); //Reserve vector size
+    std::string s = FragmentShaderHeader;
+    while (std::regex_search (s,m,e)) {
+        std::string last;
+        for (auto x:m) { std::cout << x << " "; last = x; } 
+        std::cout << std::endl;
+        s = m.suffix().str();
+        uniformLocations.push_back(shader.GetUniformLocation(last.c_str()));
+    }
 }
 void ShaderInput::Update(Window& window, ShaderToy& toy){
     iResolution = {(float)window.GetWidth(), (float)window.GetHeight(), 1.0f};
@@ -63,30 +66,33 @@ void ShaderInput::Update(Window& window, ShaderToy& toy){
 }
 
 void ShaderInput::Send(Shader& shader){
-    shader.Uniform(uniformLocations[0], iResolution);
-    shader.Uniform(uniformLocations[1], iTime);
-    shader.Uniform(uniformLocations[2], iGlobalTime);
-    shader.Uniform(uniformLocations[3], iMouse);
-    shader.Uniform(uniformLocations[4], iDate);
-    shader.Uniform(uniformLocations[5], iSampleRate);
-    shader.Uniform(uniformLocations[6], 4, iChannelResolution);
-    shader.Uniform(uniformLocations[7], 4, iChannelTime);
-    shader.Uniform(uniformLocations[8], iTimeDelta);
-    shader.Uniform(uniformLocations[9], iFrame);
-    shader.Uniform(uniformLocations[10], iFrameRate);
+    int i=0;
 
-    shader.Uniform(uniformLocations[11], 0);
-    shader.Uniform(uniformLocations[12], 1);
-    shader.Uniform(uniformLocations[13], 2);
-    shader.Uniform(uniformLocations[14], 3);
+    shader.Uniform(uniformLocations[i], 0); i++;
+    shader.Uniform(uniformLocations[i], 1); i++;
+    shader.Uniform(uniformLocations[i], 2); i++;
+    shader.Uniform(uniformLocations[i], 3); i++;
 
-    shader.Uniform(uniformLocations[15], iChannelResolution[0]);
-    shader.Uniform(uniformLocations[16], iChannelResolution[1]);
-    shader.Uniform(uniformLocations[17], iChannelResolution[2]);
-    shader.Uniform(uniformLocations[18], iChannelResolution[3]);
+    shader.Uniform(uniformLocations[i], iChannelResolution[0]); i++;
+    shader.Uniform(uniformLocations[i], iChannelResolution[1]); i++;
+    shader.Uniform(uniformLocations[i], iChannelResolution[2]); i++;
+    shader.Uniform(uniformLocations[i], iChannelResolution[3]); i++;
 
-    shader.Uniform(uniformLocations[19], iChannelTime[0]);
-    shader.Uniform(uniformLocations[20], iChannelTime[1]);
-    shader.Uniform(uniformLocations[21], iChannelTime[2]);
-    shader.Uniform(uniformLocations[22], iChannelTime[3]);
+    shader.Uniform(uniformLocations[i], iChannelTime[0]); i++;
+    shader.Uniform(uniformLocations[i], iChannelTime[1]); i++;
+    shader.Uniform(uniformLocations[i], iChannelTime[2]); i++;
+    shader.Uniform(uniformLocations[i], iChannelTime[3]); i++;
+
+    //IMPORTANT: Must be in exact order as FragmentShaderHeader
+    shader.Uniform(uniformLocations[i], iResolution); i++;
+    shader.Uniform(uniformLocations[i], iTime); i++;
+    shader.Uniform(uniformLocations[i], iGlobalTime); i++;
+    shader.Uniform(uniformLocations[i], iMouse); i++;
+    shader.Uniform(uniformLocations[i], iDate); i++;
+    shader.Uniform(uniformLocations[i], iSampleRate); i++;
+    shader.Uniform(uniformLocations[i], 4, iChannelResolution); i++;
+    shader.Uniform(uniformLocations[i], 4, iChannelTime); i++;
+    shader.Uniform(uniformLocations[i], iTimeDelta); i++;
+    shader.Uniform(uniformLocations[i], iFrame); i++;
+    shader.Uniform(uniformLocations[i], iFrameRate); i++;
 }

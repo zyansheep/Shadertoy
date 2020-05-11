@@ -48,5 +48,5 @@ private:
     std::time_t time;
     std::tm* now;
 
-    unsigned int uniformLocations[50]; //23 uniform locations
+    std::vector<unsigned int> uniformLocations; //23 uniform locations
 };
