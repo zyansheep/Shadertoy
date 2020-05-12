@@ -15,4 +15,4 @@ file(GLOB_RECURSE HEADERS src/*.h)
 
 #Test executable
 add_executable(Shadertoy ${SOURCES} ${HEADERS})
-target_link_libraries(Shadertoy LINK_PUBLIC ZyEngine)
+target_link_libraries(Shadertoy LINK_PUBLIC ZyEngine ImGuiFileDialog)

@@ -22,7 +22,7 @@ public:
 
   void SetTextures(std::vector<std::shared_ptr<Texture>>& texture);
   std::vector<std::shared_ptr<Texture>>& GetTextures();
-  void SetScript(std::string script);
+  bool SetScript(const std::string& script);
 
   void Update(Window& window);
   void Draw();
