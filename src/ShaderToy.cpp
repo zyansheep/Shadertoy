@@ -3,86 +3,76 @@
 #include "Model/Model.h"
 Model plane = ModelGeneration::Square(1,1);
 
-ShaderToy::ShaderToy(std::string script, std::vector<std::shared_ptr<Texture>>& textures)
-: ShaderToy(){
-  SetTextures(textures);
-  SetScript(script);
-}
-ShaderToy::ShaderToy(){
-  m_VertexArray = plane.MakeVertexArray();
-}
-ShaderToy::~ShaderToy() {
-  m_VertexArray->ClearUnalloc();
+ShaderToy::ShaderToy(unsigned  int channels)
+: m_Input(channels){
+	m_VertexArray = plane.MakeVertexArray();
 }
 
-void ShaderToy::SetTextures(std::vector<std::shared_ptr<Texture>>& texture) {
-  m_Textures = texture;
-}
-std::vector<std::shared_ptr<Texture>>& ShaderToy::GetTextures(){return m_Textures;}
+// Compile passed ShaderToy Script and set m_Ready flag
+void ShaderToy::Compile(const std::string& script){
+	std::ostringstream stream;
+	stream << FragmentShaderHeader; //From Constants.h
+	//Setup ShaderInput and other ShaderChannels + reset various uniforms
+	m_Input.Reset();
 
-void ShaderToy::SetScript(std::string script){
-  std::ostringstream stream;
-  stream << FragmentShaderHeader; //From Constants.h
-  for (int i = 0; i < m_Textures.size(); i++){
-    stream << "uniform sampler2D iChannel" << i << ";\n";
-  }
-  stream << script << FragmentShaderFooter; //From Constants.h
-  //std::cout << stream.str() << std::endl;
-  m_Shader = Shader(
-    VertexShader, //From Constants.h
-    stream.str());
-  m_Input.GetUniformLocations(m_Shader); //Save all the uniform locations
-}
-void ShaderToy::Update(Window& window) {
-  if(!m_VertexArray){ return; }
-  m_Input.Update(window, *this);
-}
-void ShaderToy::Draw(){
-  if(!m_VertexArray){ return; }
-  if(!m_VertexArray->Loaded){ return; }
-
-  m_Shader.Bind();
-  for(auto& texture : m_Textures){
-    texture->Bind();
-  }
-  m_Input.Send(m_Shader); // Update Uniforms
-  m_VertexArray->Draw();
-}
-
-/*
-void ShaderToy::KeyCallback(SDL_KeyboardEvent *event) {
-	if (event->keysym.sym == SDLK_x)
-	{
-		if (screenshot() == false)
-		{
-			SDL_LogWarn(SDL_LOG_CATEGORY_APPLICATION, "Save screenshot failed\n");
+	//Get neccessary input channels
+	for (int i = 0; i < m_Input.iChannel.size(); i++){
+		if(m_Input.iChannel[i].Type != ShaderChannelType::NullChannel){
+			stream << "uniform " << m_Input.iChannel[i].GetShaderUniformName() << " iChannel" << i << ";\n";
 		}
 	}
+	stream << script << FragmentShaderFooter; //From Constants.h
+	//std::cout << stream.str() << std::endl;
+	m_Shader = Shader(
+	VertexShader, //From Constants.h
+	stream.str());
+
+	m_Input.UpdateUniformLocations(m_Shader); //Save all the uniform locations
+	
+	m_Ready = (m_Shader.Loaded() && m_Input.Loaded && m_VertexArray->Loaded);
+}
+void ShaderToy::Update(Window& window) {
+	if(!m_VertexArray){ return; }
+	m_Input.Update(window);
+}
+void ShaderToy::Draw(){
+	if(!m_Ready){ return; }
+
+	m_Shader.Bind();
+	m_Input.Send(m_Shader); // Update Uniforms & Bind Textures
+	m_VertexArray->Draw();
 }
 
-void ShaderToy::MouseButtonCallback(SDL_MouseButtonEvent *event)
-{
-    mInput.iMouse.setZ(-Math::abs(mInput.iMouse.z()));
-    mInput.iMouse.setW(-Math::abs(mInput.iMouse.w()));
+#include "imgui.h"
+#include "ImGuiFileDialog/ImGuiFileDialog.h"
+
+// Display ImGui Menu
+void ShaderToy::DisplayMenu(){
+	// Main Shader Selection Button
+	if (ImGui::Button("Select Shader")){
+		igfd::ImGuiFileDialog::Instance()->OpenDialog("ShaderToyDialog",
+			"Choose Shader File", ".shader\0.frag\0.glsl\0\0", ".");
+	}
+
+	// Display all channel Entries (combos and selectors)
+	for(ShaderChannel& channel : m_Input.iChannel){
+		channel.DisplayMenu();
+	}
+
+	//Detect Dialog Selection
+	if (igfd::ImGuiFileDialog::Instance()->FileDialog("ShaderToyDialog"))	{
+		if (igfd::ImGuiFileDialog::Instance()->IsOk) {
+			std::string path = igfd::ImGuiFileDialog::Instance()->GetFilepathName();
+			std::cout << "Loading ShaderToy Script: " << path << std::endl;
+			
+			Compile(Utils::ReadFileSync(path));
+		}
+		// close
+		igfd::ImGuiFileDialog::Instance()->CloseDialog("ShaderToyDialog");
+	}
+	ImGui::Text("ShaderToy Ready: %d", m_Ready);
+	ImGui::Text("ShaderInput Ready: %d", m_Input.Loaded);
+	for(int i=0;i<m_Input.iChannel.size();i++){
+		ImGui::Text("Shader iChannel%d Ready: %d", i, m_Input.iChannel[i].Loaded);
+	}
 }
-
-void ShaderToy::MouseButtonCallback(SDL_MouseButtonEvent *event)
-{
-    const Rectangle *rect = drawableRect();
-    mInput.iMouse.setZ(Math::floor((event->x - rect->left()) / rect->width() * width()));
-    mInput.iMouse.setW(Math::floor(height() - (event->y - rect->top()) / rect->height() * height()));
-    mInput.iMouse.setX(mInput.iMouse.z());
-    mInput.iMouse.setY(mInput.iMouse.w());
-}
-
-void ShaderToy::MouseMotionCallback(SDL_MouseMotionEvent *event)
-{
-    const Rectangle *winrect = rect();
-    const Rectangle *drawrect = drawableRect();
-
-    float widthRatio = drawrect->width() / winrect->width();
-    float heightRatio = drawrect->height() / winrect->height();
-
-    mInput.iMouse.setX(Math::floor(event->x - drawrect->left()) * widthRatio);
-    mInput.iMouse.setY(Math::floor(height() - (event->y - drawrect->top()) * heightRatio));
-}*/

@@ -11,30 +11,24 @@
 //All the Vertex Shader constants and stuff
 #include "Constants.h"
 #include "ShaderInput.h"
+#include "Core/Utils.h"
 
 #include "Core/Window.h"
 
 class ShaderToy {
 public:
-  ShaderToy(std::string script, std::vector<std::shared_ptr<Texture>>& textures);
-  ShaderToy();
-  ~ShaderToy();
+	ShaderToy(unsigned int channels = 4);
 
-  void SetTextures(std::vector<std::shared_ptr<Texture>>& texture);
-  std::vector<std::shared_ptr<Texture>>& GetTextures();
-  bool SetScript(const std::string& script);
+	void Compile(const std::string& script);
 
-  void Update(Window& window);
-  void Draw();
+	void Update(Window& window);
+	void Draw();
 
-  /*void KeyCallback(int key, int scancode, int action, int mods);
-  void MouseButtonCallback(int button, int action, int mods);
-  void MouseMotionCallback(double xpos, double ypos);*/
-
+	void DisplayMenu();
 private:
-  ShaderInput m_Input; //Internal utility class
-  VertexArray* m_VertexArray; //Generated for display
+	bool m_Ready;
+	ShaderInput m_Input; //Manages Inputs to the shader
+	std::shared_ptr<VertexArray> m_VertexArray; //Generated for display
 
-  Shader m_Shader;
-  std::vector<std::shared_ptr<Texture>> m_Textures;
+	Shader m_Shader;
 };

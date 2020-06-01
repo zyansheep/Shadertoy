@@ -3,42 +3,20 @@
 #include <array>
 #include <math.h>
 
-#include "World/World.h"
-#include "World/CameraController.h"
+#include "Core/Window.h"
 #include "Core/Gui.h"
-#include "Model/Model.h"
-#include "Core/Functions.h"
+#include "Core/Utils.h"
+
+Window window = Window(1280,720, "ZyEngine - Shadertoy", false);
+Gui gui = Gui(window);
 
 #include "ShaderToy.h"
-
-Window window = Window(1280,720, "ZyEngine - Shadertoy");
-Gui gui = Gui(window);
 ShaderToy toy;
 
-std::string shader_path = "shaders/marching.shader";
-std::vector<std::string> texture_paths;
-Shader shader;
-
 void setup(){
-  std::cout << "Current Dir: " << GetCurrentWorkingDir() << '\n';
-  //AttemptCompile();
-  
-  toy.SetScript(readFileSync(shader_path));
+  std::cout << "Current Dir: " << Utils::GetCurrentWorkingDir() << '\n';
 
-  //glEnable(GL_DEPTH_TEST);
-  //glDepthFunc(GL_LESS);
-  
   gui.Init();
-}
-void AttemptCompile(){
-  /*if(std::filesystem::exists(shader_path)){
-    
-  }
-  for(std::string& str : texture_paths){
-    if(std::filesystem::exists(shader_path)){
-      toy.SetScript(readFileSync(shader_path));
-    }
-  }*/
 }
 
 void draw(){
@@ -48,13 +26,15 @@ void draw(){
   toy.Update(window);
   toy.Draw();
   
-  gui.Begin("Hello There~");
-    ImGui::Button("This is a button");
-    ImGuiColorEditFlags misc_flags = (0) | (ImGuiColorEditFlags_NoDragDrop) | (ImGuiColorEditFlags_AlphaPreviewHalf) | (ImGuiColorEditFlags_NoOptions);
+  gui.StartFrame();
+  ImGui::Begin("Main Window");
     ImGui::Text("FPS: %d", window.GetFrameRate());
     ImGui::Text("Mouse Position: (%d, %d)", window.MouseX, window.MouseY);
     ImGui::Text("Current Time: %f", window.RunTime);
-  gui.End();
+
+    toy.DisplayMenu();
+  ImGui::End();
+  
   gui.Render();
   gui.Draw();
 }
