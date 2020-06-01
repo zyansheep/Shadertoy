@@ -25,29 +25,30 @@ SOFTWARE.
 */
 
 #include "ImGuiFileDialog.h"
-#include "imgui.h"
 
-#ifdef WIN32
-#include <dirent.h>
-#define PATH_SEP '\\'
-#ifndef PATH_MAX
-#define PATH_MAX 260
+#include "Core/Preprocessor.h"
+
+#ifdef ZY_WINDOWS
+	#include <dirent.h>
+	#define PATH_SEP '\\'
+	#ifndef PATH_MAX
+		#define PATH_MAX 260
+	#endif
+#elif defined(ZY_LINUX) || defined(ZY_OSX)
+	#include <sys/types.h>
+	#include <dirent.h>
+	#define PATH_SEP '/'
 #endif
-#elif defined(LINUX) or defined(APPLE)
-#include <sys/types.h>
-#include <dirent.h>
-#define PATH_SEP '/'
-#endif
+
+#include <cstdlib>
+#include <algorithm>
+#include <iostream>
 
 #include "imgui.h"
 #ifndef IMGUI_DEFINE_MATH_OPERATORS
 #define IMGUI_DEFINE_MATH_OPERATORS
 #endif
 #include "imgui_internal.h"
-
-#include <cstdlib>
-#include <algorithm>
-#include <iostream>
 
 namespace igfd
 {
@@ -1301,9 +1302,9 @@ namespace igfd
 
 		if (nullptr != dir)
 		{
-#ifdef WIN32
+#ifdef ZY_WINDOWS
 			size_t numchar = GetFullPathNameA(path.c_str(), PATH_MAX - 1, real_path, nullptr);
-#elif defined(LINUX) or defined(APPLE)
+#elif defined(ZY_LINUX) || defined(ZY_APPLE)
 			char *numchar = realpath(path.c_str(), real_path);
 #endif
 			if (numchar != 0)

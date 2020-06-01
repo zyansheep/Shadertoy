@@ -44,9 +44,9 @@ SOFTWARE.
 #include <list>
 
 #ifndef CUSTOM_IMGUIFILEDIALOG_CONFIG
-#include "ImGuiFileDialogConfig.h"
+	#include "ImGuiFileDialogConfig.h"
 #else
-#include CUSTOM_IMGUIFILEDIALOG_CONFIG
+	#include CUSTOM_IMGUIFILEDIALOG_CONFIG
 #endif
 	
 namespace igfd
